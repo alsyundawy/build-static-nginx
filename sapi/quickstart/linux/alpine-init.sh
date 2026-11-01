@@ -39,6 +39,7 @@ tencentyun | huaweicloud) # 云服务的内网镜像源
 esac
 
 apk update
+apk upgrade --available
 
 apk add vim alpine-sdk xz autoconf automake linux-headers clang-dev clang lld libtool cmake bison re2c coreutils gcc g++
 apk add bash zip unzip flex pkgconf ca-certificates

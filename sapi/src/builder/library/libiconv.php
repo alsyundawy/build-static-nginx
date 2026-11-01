@@ -5,16 +5,18 @@ use SwooleCli\Preprocessor;
 
 return function (Preprocessor $p) {
     $libiconv_prefix = ICONV_PREFIX;
+    $libiconvVersion = '1.18';
+    $libiconvFile = "libiconv-{$libiconvVersion}.tar.gz";
     $p->addLibrary(
         (new Library('libiconv'))
             ->withHomePage('https://www.gnu.org/software/libiconv/')
             ->withManual('https://www.gnu.org/software/libiconv/')
             ->withLicense('https://www.gnu.org/licenses/old-licenses/gpl-2.0.html', Library::LICENSE_GPL)
-            //->withUrl('https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.17.tar.gz')
-            ->withUrl('https://ftpmirror.gnu.org/gnu/libiconv/libiconv-1.17.tar.gz')
-            ->withMirrorUrl('https://mirrors.tuna.tsinghua.edu.cn/gnu/libiconv/libiconv-1.17.tar.gz')
-            ->withMirrorUrl('https://mirrors.ustc.edu.cn/gnu/libiconv/libiconv-1.17.tar.gz')
-            ->withFileHash('md5', 'd718cd5a59438be666d1575855be72c3')
+            ->withUrl("https://ftpmirror.gnu.org/libiconv/{$libiconvFile}")
+            ->withMirrorUrl("https://mirrors.tuna.tsinghua.edu.cn/gnu/libiconv/{$libiconvFile}")
+            ->withMirrorUrl("https://mirrors.ustc.edu.cn/gnu/libiconv/{$libiconvFile}")
+            ->withFile($libiconvFile)
+            ->withFileHash('sha256', '3b08f5f4f9b4eb82f151a7040bfd6fe6c6fb922efe4b1659c66ea933276965e8')
             ->withPrefix($libiconv_prefix)
             ->withConfigure(
                 <<<EOF
@@ -40,7 +42,7 @@ includedir=\${prefix}/include
 
 Name: iconv
 Description: iconv library
-Version: 1.16
+Version: 1.18
 
 Requires:
 Libs: -L\${libdir} -liconv

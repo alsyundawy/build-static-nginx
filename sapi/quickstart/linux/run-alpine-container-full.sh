@@ -21,6 +21,9 @@ cd ${__DIR__}
 
 IMAGE=alpine:3.18
 
+echo "警告: run-alpine-container-full.sh 依赖历史预构建镜像标签，当前仍基于 Alpine 3.18。"
+echo "如果你要使用更新的 gcc/OpenSSL，请改用 sapi/quickstart/linux/run-alpine-container.sh + sapi/quickstart/linux/alpine-init.sh，或先重新制作 full 镜像。"
+
 : <<'EOF'
    启动此容器
 

@@ -22,7 +22,7 @@ docker cp $container_id:/usr/local/swoole-cli/ .
 
 
 cat > Dockerfile <<'EOF'
-FROM alpine:3.18
+FROM alpine:3.24
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 ENV TZ=Etc/UTC
@@ -70,7 +70,7 @@ done
 ARCH=$(uname -m)
 TIME=$(date -u '+%Y%m%dT%H%M%SZ')
 VERSION="1.0.0"
-TAG="all-dependencies-alpine-3.18-ffmpeg-opencv-v${VERSION}-${ARCH}-${TIME}"
+TAG="all-dependencies-alpine-3.24-ffmpeg-opencv-v${VERSION}-${ARCH}-${TIME}"
 
 IMAGE="docker.io/jingjingxyk/build-swoole-cli:${TAG}"
 IMAGE="registry.cn-beijing.aliyuncs.com/jingjingxyk-public/app:${TAG}"
@@ -88,4 +88,3 @@ tar -cJvf "${IMAGE_FILE}.xz" ${IMAGE_FILE}
 
 
 # docker load -i "swoole-cli-builder-ffmpeg-opencv-image.tar"
-

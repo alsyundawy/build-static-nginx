@@ -4,6 +4,7 @@ on: [ push, pull_request ]
 
 env:
   BUILD_PHP_VERSION: 8.2.28
+  TOOLCHAIN_CACHE_VERSION: toolchain-v20260625
 
 jobs:
   linux-aarch64:
@@ -74,14 +75,14 @@ jobs:
         id: all-library-cache-aarch64
         with:
           path: /usr/local/swoole-cli
-          key: ${{ github.head_ref || github.ref_name }}-${{ runner.os }}-aarch64-all-library
+          key: ${{ env.TOOLCHAIN_CACHE_VERSION }}-${{ github.head_ref || github.ref_name }}-${{ runner.os }}-aarch64-all-library
 
       - name: Cache swoole-cli-builder-image
         uses: actions/cache@v4
         id: swoole-cli-builder-image-cache-aarch64
         with:
           path: ${{ github.workspace }}/var/build-github-action-container/swoole-cli-builder-image.tar
-          key: ${{ runner.os }}-aarch64-swoole-cli-builder-image
+          key: ${{ env.TOOLCHAIN_CACHE_VERSION }}-${{ runner.os }}-aarch64-swoole-cli-builder-image
 
       - name: Prepare swoole-cli-builder-image
         run: |
@@ -127,6 +128,9 @@ jobs:
             php prepare.php  +nginx --with-c-compiler=gcc --with-build-type=release
 
             bash make-install-deps.sh
+            bash make.sh clean-openssl-cached
+            bash make.sh clean-nginx
+            rm -rf /usr/local/swoole-cli/openssl /usr/local/swoole-cli/nginx
 
             bash make.sh all-library
 
@@ -156,10 +160,3 @@ jobs:
           name: ${{ env.APP_NAME }}-${{ env.APP_VERSION }}-linux-arm64
           retention-days: 90
           path: ./bin/nginx
-
-      - name: gh release
-        uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: ${{ env.APP_NAME }}-${{ env.APP_VERSION }}-linux-arm64.tar.xz
-

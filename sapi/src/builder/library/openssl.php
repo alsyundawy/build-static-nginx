@@ -6,6 +6,9 @@ use SwooleCli\Preprocessor;
 return function (Preprocessor $p) {
     $openssl_prefix = OPENSSL_PREFIX;
     $static = $p->isMacos() ? '' : ' -static --static';
+    $opensslVersion = '3.5.7';
+    $opensslFile = "openssl-{$opensslVersion}.tar.gz";
+    $opensslUrl = "https://github.com/openssl/openssl/releases/download/openssl-{$opensslVersion}/{$opensslFile}";
 
     $cc = '';
     if ($p->isLinux() && ($p->get_C_COMPILER() === 'musl-gcc')) {
@@ -28,11 +31,12 @@ return function (Preprocessor $p) {
 
     $p->addLibrary(
         (new Library('openssl'))
-            ->withHomePage('https://github.com/quictls/openssl/')
+            ->withHomePage('https://openssl-library.org/')
             ->withLicense('https://github.com/openssl/openssl/blob/master/LICENSE.txt', Library::LICENSE_APACHE2)
             ->withManual('https://www.openssl.org/docs/')
-            ->withUrl('https://github.com/quictls/openssl/archive/refs/tags/openssl-3.1.4-quic1.tar.gz')
-            ->withFileHash('md5', 'ba2d8774a51a38f2481aad43d05aea57')
+            ->withUrl($opensslUrl)
+            ->withFile($opensslFile)
+            ->withFileHash('sha256', 'a8c0d28a529ca480f9f36cf5792e2cd21984552a3c8e4aa11a24aa31aeac98e8')
             ->withPrefix($openssl_prefix)
             ->withConfigure(
                 <<<EOF

@@ -12,6 +12,7 @@ return function (Preprocessor $p) {
     $openssl = $p->getLibrary('openssl');
     $zlib = $p->getLibrary('zlib');
     $pcre2 = $p->getLibrary('pcre2');
+    $opensslArchive = $openssl ? $openssl->file : 'openssl-3.5.7.tar.gz';
 
     $cflags = '';
     $ldflags = '';
@@ -19,7 +20,7 @@ return function (Preprocessor $p) {
         $cflags .= ' -static -fPIE ';
         $ldflags .= ' -static  '; //-static-pie
     }
-    $tag = '1.28.0';
+    $tag = '1.31.3';
     $p->addLibrary(
         (new Library('nginx'))
             ->withHomePage('https://nginx.org/')
@@ -59,7 +60,7 @@ EOF
             mkdir -p {$builderDir}/nginx/openssl
             mkdir -p {$builderDir}/nginx/zlib
             mkdir -p {$builderDir}/nginx/pcre2
-            tar --strip-components=1 -C {$builderDir}/nginx/openssl -xf  {$workDir}/pool/lib/openssl-3.0.8-quic1.tar.gz
+            tar --strip-components=1 -C {$builderDir}/nginx/openssl -xf  {$workDir}/pool/lib/{$opensslArchive}
             tar --strip-components=1 -C {$builderDir}/nginx/zlib    -xf  {$workDir}/pool/lib/zlib-1.2.11.tar.gz
             tar --strip-components=1 -C {$builderDir}/nginx/pcre2   -xf  {$workDir}/pool/lib/pcre2-10.42.tar.gz
             PACKAGES=" libxml-2.0 libexslt"
@@ -78,6 +79,13 @@ EOF
 
             set -x
             patch -p1 < {$builderDir}/ngx_http_proxy_connect_module/patch/proxy_connect_rewrite_102101.patch
+
+            # nginx >= 1.29 changed ngx_http_validate_host signature to:
+            # ngx_http_validate_host(host, &port, pool, alloc)
+            # proxy_connect patch still injects old 3-arg call, fix it in-place.
+            if grep -q 'ngx_http_validate_host(ngx_str_t \*host, in_port_t \*port' src/http/ngx_http.h; then
+                perl -0pi -e 's/ngx_http_validate_host\(&host,\s*r->pool,\s*0\)/ngx_http_validate_host\(&host, \&port, r->pool, 0\)/g' src/http/ngx_http_request.c
+            fi
 
             cp -f auto/configure configure
 
